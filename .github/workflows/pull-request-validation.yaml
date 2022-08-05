@@ -1,0 +1,29 @@
+---
+name: Pull Request Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+jobs:
+  pr-checklists-are-checked:
+    name: PR Description Checklists are Fully Checked
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+      - name: Require Checklist
+        uses: mheap/require-checklist-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.CODEOWNERS_VALIDATOR_GITHUB_ACCESS_TOKEN_JENKINS_USER }}
+
+  pr-title-starts-with-jira-ticket:
+    name: PR Title Format Matches '[abcd-123] Description'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: markup-all-the-things/pr-name-enforcer@v1.4
+        with:
+          error-message: 'Format titles like `[abc-123] Description of changes` (i.e. `/^\[[a-zA-Z]+-[0-9]+\]\s?.+$/`)'
+          repo-token: '${{ secrets.GITHUB_TOKEN }}'
+          regex: '^\[[a-zA-Z]+-[0-9]+\]\s?.+$'
+          regex-flags: gm

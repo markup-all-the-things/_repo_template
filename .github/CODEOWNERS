@@ -1,0 +1,59 @@
+###
+# Keep this organized alphabetically by team (except where noted),
+# read the NOTES, and leave meaningful comments.
+# ----------------------------------------------------------------
+#
+# NOTES ABOUT HOW THIS FILE WORKS
+# - Validate all changes with https://github.com/mszostok/codeowners-validator
+#
+# - Most rules should start with a slash unless you intentionally
+#   want ownership of that pattern _anywhere_ in the repo.
+#   Leave a comment if this is the case.
+#
+# - The last matching rule is the one applied. Examples:
+#   1) Org owners take ownership of all files with * at the top,
+#      and any rule below for another team will take precedence.
+#   2) Team owners that are the last listed owner/match override
+#      the owning team for changes to those files, even if they're
+#      part of another team's code in a higher match.
+#
+# - As a result of the matching rules above, DO NOT ADD ! (negation) rules.
+#
+# - The base branch's CODEOWNERS file takes precedence over changes
+#   to the CODEOWNERS files in a branch, meaning you can't remove
+#   a base team without their approval.
+#
+# - Changes to CODEOWNERS in a branch are reflected in the PR,
+#   meaning newly added teams will be requested for review in the PR.
+#
+# - Reviewers only get updated when a push occurs to the branch.
+#
+# - ALL TEAMS MUST BE EXPLICITLY GIVEN WRITE ACCESS TO THE REPO
+#   (or they must be a child team of a team that has write access)
+# ----------------------------------------------------------------
+#
+# RESOURCES
+# - https://git-scm.com/docs/gitignore#_pattern_format
+# - https://help.github.com/en/github/creating-cloning-and-archiving-repositories/about-code-owners
+# ----------------------------------------------------------------
+###
+
+###
+# GitHub org owners are the default owner if no one else takes ownership below.
+# This is to ensure that someone owns everything eventually.
+#
+# DO NOT MOVE THIS FROM THE TOP OF THE FILE.
+###
+* @markup-all-the-things/maintainers
+
+###
+# No Owners
+###
+
+# E.g., don't need owners for docs:
+# *.md @ghost
+
+###
+# Overrides
+###
+# This section is to override owners for a subset of files owned by other teams.

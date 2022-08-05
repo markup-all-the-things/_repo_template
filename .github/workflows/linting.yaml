@@ -1,0 +1,116 @@
+---
+name: Linting
+
+on:
+  - pull_request
+
+jobs:
+  detect-changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      tf: ${{ steps.filter.outputs.tf }}
+      yaml: ${{ steps.filter.outputs.yaml }}
+      sh: ${{ steps.filter.outputs.sh }}
+      tf_files: ${{ steps.filter.outputs.tf_files }}
+      yaml_files: ${{ steps.filter.outputs.yaml_files }}
+      sh_files: ${{ steps.filter.outputs.sh_files }}
+    steps:
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          # Defines filters applied to detected changed files.
+          # Each filter has a name and list of rules.
+          # Rule is a glob expression - paths of all changed
+          # files are matched against it.
+          # Rule can optionally specify if the file
+          # should be added, modified or deleted.
+          # For each filter there will be corresponding output variable to
+          # indicate if there's a changed file matching any of the rules.
+          # Optionally there can be a second output variable
+          # set to list of all files matching the filter.
+          # Filters can be provided inline as a string (containing valid YAML document)
+          # or as a relative path to separate file (e.g.: .github/filters.yaml).
+          # Multiline string is evaluated as embedded filter definition,
+          # single line string is evaluated as relative path to separate file.
+          # Filters syntax is documented by example - see examples section.
+          filters: |
+            tf:
+              - added|modified: '**/*.tf'
+            yaml:
+              - added|modified: '**/*.y*ml'
+            sh:
+              - '**/*.sh'
+
+          # Enables listing of files matching the filter:
+          #   'none'  - Disables listing of matching files (default).
+          #   'csv'   - Coma separated list of filenames.
+          #             If needed it uses double quotes to wrap filename with unsafe characters.
+          #   'json'  - Matching files paths are formatted as JSON array.
+          #   'shell' - Space delimited list usable as command line argument list in Linux shell.
+          #             If needed it uses single or double quotes to wrap filename with unsafe characters.
+          #   'escape'- Space delimited list usable as command line argument list in Linux shell.
+          #             Backslash escapes every potentially unsafe character.
+          # Default: none
+          list-files: shell
+
+          # Personal access token used to fetch list of changed files
+          # from Github REST API.
+          # It's used only if action is triggered by pull request event.
+          # Github token from workflow context is used as default value.
+          # If empty string is provided, action falls back to detect
+          # changes using git commands.
+          # Default: ${{ github.token }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  terraform-fmt:
+    name: Terraform Formatting
+    needs: detect-changes
+    runs-on: ubuntu-latest
+    if: ${{ needs.detect-changes.outputs.tf == 'true' }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 0.15
+      - name: Terraform fmt
+        env:
+          FILES: ${{ needs.detect-changes.outputs.tf_files }}
+        run: |
+          for f in $FILES; do
+            terraform fmt -diff -check "${f}";
+          done
+
+  terraform-lint:
+    name: Terraform Linting
+    needs: detect-changes
+    runs-on: ubuntu-latest
+    if: ${{ needs.detect-changes.outputs.tf == 'true' }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Lint Terraform
+        uses: actionshub/terraform-lint@main
+
+  shell-lint:
+    name: Shell Lint
+    needs: detect-changes
+    runs-on: ubuntu-latest
+    if: ${{ needs.detect-changes.outputs.sh == 'true' }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run ShellCheck
+        run: shellcheck ${{ needs.detect-changes.outputs.sh_files }}
+
+  yaml-lint:
+    name: YAML Lint
+    needs: detect-changes
+    runs-on: ubuntu-latest
+
+    if: ${{ needs.detect-changes.outputs.yaml == 'true' }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: YAML Lint
+        uses: ibiqlik/action-yamllint@v3
+        with:
+          config_file: .github/config/yaml-linter.yaml
+          format: github

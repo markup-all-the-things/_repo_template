@@ -1,0 +1,11 @@
+name: YAML Schema Validation
+on: [push]
+
+jobs:
+  yaml-schema-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: markup-all-the-things/yaml-schema-validator-github-action@v4.1.0
+        with:
+          schema: github/repositories/schema.yaml

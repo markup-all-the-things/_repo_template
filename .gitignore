@@ -1,0 +1,22 @@
+.DS_Store
+
+.env
+
+# Terraform plan files
+*.plan
+*.tfplan
+
+# Emacs temp files
+\#*
+*~
+.\#*
+
+#  Local .terraform directories
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# .tfvars files
+*.tfvars

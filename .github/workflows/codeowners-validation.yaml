@@ -1,0 +1,26 @@
+---
+name: CODEOWNERS Validation
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  codeowners-validator:
+    name: CODEOWNERS is valid
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+      - name: GitHub CODEOWNERS Validator
+        uses: mszostok/codeowners-validator@v0.6.0
+        with:
+          experimental_checks: notowned
+          # GitHub access token is required only if the `owners` check is enabled
+          # https://github.com/organizations/markup-all-the-things/settings/secrets/actions
+          github_access_token: ${{ secrets.CODEOWNERS_VALIDATOR_GITHUB_ACCESS_TOKEN_JENKINS_USER }}
